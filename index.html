@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#9fd8f2" />
+  <meta name="description" content="NutriCasa: calorías, macros, despensa y boletas en una app personal, gratis y privada." />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="icon" href="/assets/icons/icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/assets/icons/icon-192.png" />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link rel="stylesheet" href="/styles.css" />
+  <title>NutriCasa</title>
+</head>
+<body>
+  <div class="ambient ambient-a"></div>
+  <div class="ambient ambient-b"></div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">MI PANEL</p>
+      <h1>NutriCasa <span aria-hidden="true">✦</span></h1>
+      <p id="todayLabel" class="muted"></p>
+    </div>
+    <button class="avatar-btn pressable" id="settingsBtn" aria-label="Abrir configuración">F</button>
+  </header>
+
+  <main class="app-shell">
+    <section id="view-hoy" class="view active" data-view="hoy">
+      <div class="hero-grid">
+        <article class="card calories-card reveal">
+          <div class="card-head">
+            <div>
+              <p class="eyebrow">CALORÍAS HOY</p>
+              <h2><span id="caloriesConsumed">0</span> <small>/ <span id="caloriesGoal">2300</span> kcal</small></h2>
+            </div>
+            <span id="caloriesPercent" class="pill blue">0%</span>
+          </div>
+
+          <div class="ring-wrap">
+            <svg class="calorie-ring" viewBox="0 0 140 140" aria-label="Progreso de calorías">
+              <circle class="ring-bg" cx="70" cy="70" r="54"></circle>
+              <circle id="calorieRing" class="ring-value" cx="70" cy="70" r="54"></circle>
+            </svg>
+            <div class="ring-center">
+              <strong id="caloriesRemaining">2300</strong>
+              <span>restantes</span>
+            </div>
+          </div>
+
+          <div class="macro-grid">
+            <div class="macro-item">
+              <div class="macro-line"><span>Proteínas</span><b id="proteinText">0 / 160 g</b></div>
+              <div class="progress"><i id="proteinBar" class="bar teal"></i></div>
+            </div>
+            <div class="macro-item">
+              <div class="macro-line"><span>Carbohidratos</span><b id="carbText">0 / 250 g</b></div>
+              <div class="progress"><i id="carbBar" class="bar blue"></i></div>
+            </div>
+            <div class="macro-item">
+              <div class="macro-line"><span>Grasas</span><b id="fatText">0 / 70 g</b></div>
+              <div class="progress"><i id="fatBar" class="bar coral"></i></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card reveal delay-1">
+          <div class="card-head compact">
+            <div>
+              <p class="eyebrow">ACCESOS RÁPIDOS</p>
+              <h3>¿Qué quieres hacer?</h3>
+            </div>
+          </div>
+          <div class="quick-grid">
+            <button class="quick-action pressable" data-action="meal"><span>🍽️</span><b>Registrar comida</b><small>Suma calorías y descuenta stock</small></button>
+            <button class="quick-action pressable" data-action="pantry-add"><span>🧺</span><b>Agregar a despensa</b><small>Compra manual o reposición</small></button>
+            <button class="quick-action pressable" data-action="pantry-remove"><span>👨‍👩‍👦</span><b>Consumo familiar</b><small>Descuenta sin sumar calorías</small></button>
+            <button class="quick-action pressable" data-action="receipt"><span>🧾</span><b>Subir boleta</b><small>Foto + lectura OCR opcional</small></button>
+          </div>
+        </article>
+      </div>
+
+      <article class="card section-card reveal delay-2">
+        <div class="card-head compact">
+          <div>
+            <p class="eyebrow">COMIDAS DE HOY</p>
+            <h3>Tu registro</h3>
+          </div>
+          <button class="text-btn" id="addMealBtn">+ Agregar</button>
+        </div>
+        <div id="mealList" class="meal-list"></div>
+      </article>
+
+      <article class="card section-card reveal delay-3">
+        <div class="card-head compact">
+          <div>
+            <p class="eyebrow">DESPENSA</p>
+            <h3>Stock bajo</h3>
+          </div>
+          <button class="text-btn" data-nav="despensa">Ver todo</button>
+        </div>
+        <div id="lowStockList" class="mini-stock-grid"></div>
+      </article>
+    </section>
+
+    <section id="view-despensa" class="view" data-view="despensa">
+      <div class="section-title">
+        <div><p class="eyebrow">INVENTARIO</p><h2>Mi despensa</h2><p class="muted">Agrega, descuenta y revisa cada movimiento.</p></div>
+        <button class="primary-btn pressable" id="addPantryBtn">+ Producto</button>
+      </div>
+      <article class="card filters-card">
+        <label class="search-box">🔎 <input id="pantrySearch" type="search" placeholder="Buscar avena, yogurt, arroz..." /></label>
+        <select id="pantryFilter" aria-label="Filtrar despensa">
+          <option value="all">Todos</option>
+          <option value="low">Stock bajo</option>
+          <option value="food">Alimentos</option>
+          <option value="drink">Bebidas</option>
+          <option value="other">Otros</option>
+        </select>
+      </article>
+      <div id="pantryGrid" class="pantry-grid"></div>
+    </section>
+
+    <section id="view-boletas" class="view" data-view="boletas">
+      <div class="section-title">
+        <div><p class="eyebrow">COMPRAS</p><h2>Boletas</h2><p class="muted">Sube una foto y confirma los productos antes de agregarlos.</p></div>
+      </div>
+
+      <article class="card receipt-uploader" id="receiptDropzone">
+        <input id="receiptInput" type="file" accept="image/png,image/jpeg,image/webp,application/pdf" hidden />
+        <div class="receipt-icon">🧾</div>
+        <h3>Arrastra tu boleta aquí</h3>
+        <p>o toca para elegir una foto. El OCR funciona en el navegador y no envía la imagen a un servidor.</p>
+        <button class="secondary-btn pressable" id="chooseReceiptBtn">Elegir archivo</button>
+        <small>JPG, PNG, WEBP o PDF. El OCR automático se habilita para imágenes.</small>
+      </article>
+
+      <article id="receiptWorkspace" class="card section-card hidden">
+        <div class="receipt-workspace-grid">
+          <div>
+            <div class="card-head compact"><div><p class="eyebrow">VISTA PREVIA</p><h3 id="receiptFileName">Boleta</h3></div></div>
+            <div id="receiptPreview" class="receipt-preview"></div>
+          </div>
+          <div>
+            <div class="card-head compact"><div><p class="eyebrow">LECTURA</p><h3>Productos detectados</h3></div><button id="runOcrBtn" class="text-btn">Leer texto</button></div>
+            <p id="ocrStatus" class="muted small">Puedes usar OCR o agregar productos manualmente.</p>
+            <textarea id="ocrText" rows="9" placeholder="El texto reconocido aparecerá aquí..."></textarea>
+            <div class="row-actions">
+              <button id="parseOcrBtn" class="secondary-btn pressable">Convertir líneas en productos</button>
+              <button id="receiptManualProductBtn" class="secondary-btn ghost pressable">+ Producto manual</button>
+            </div>
+          </div>
+        </div>
+        <div id="receiptProducts" class="receipt-products"></div>
+        <div class="receipt-footer">
+          <button id="saveReceiptBtn" class="primary-btn pressable">Agregar confirmados a despensa</button>
+        </div>
+      </article>
+
+      <article class="card section-card">
+        <div class="card-head compact"><div><p class="eyebrow">HISTORIAL</p><h3>Boletas guardadas</h3></div></div>
+        <div id="receiptHistory" class="timeline"></div>
+      </article>
+    </section>
+
+    <section id="view-progreso" class="view" data-view="progreso">
+      <div class="section-title">
+        <div><p class="eyebrow">TENDENCIAS</p><h2>Mi progreso</h2><p class="muted">Peso y adherencia diaria, guardados en tu dispositivo.</p></div>
+        <button class="primary-btn pressable" id="addWeightBtn">+ Peso</button>
+      </div>
+
+      <div class="stats-grid">
+        <article class="card stat-card"><span>⚖️</span><div><small>Último peso</small><strong id="lastWeight">—</strong></div></article>
+        <article class="card stat-card"><span>🔥</span><div><small>Promedio 7 días</small><strong id="avgCalories">—</strong></div></article>
+        <article class="card stat-card"><span>🎯</span><div><small>Días dentro de meta</small><strong id="goalDays">—</strong></div></article>
+      </div>
+
+      <article class="card section-card">
+        <div class="card-head compact"><div><p class="eyebrow">PESO</p><h3>Últimos registros</h3></div></div>
+        <div id="weightChart" class="chart" aria-label="Gráfico de peso"></div>
+      </article>
+
+      <article class="card section-card">
+        <div class="card-head compact"><div><p class="eyebrow">HISTORIAL</p><h3>Pesajes</h3></div></div>
+        <div id="weightHistory" class="timeline"></div>
+      </article>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Navegación principal">
+    <button class="nav-item active" data-nav="hoy"><span>⌂</span><small>Hoy</small></button>
+    <button class="nav-item" data-nav="despensa"><span>▦</span><small>Despensa</small></button>
+    <button class="nav-item" data-nav="boletas"><span>▤</span><small>Boletas</small></button>
+    <button class="nav-item" data-nav="progreso"><span>⌁</span><small>Progreso</small></button>
+  </nav>
+
+  <dialog id="appModal" class="modal">
+    <form method="dialog" id="modalForm">
+      <div class="modal-head">
+        <div><p id="modalEyebrow" class="eyebrow">NUEVO</p><h3 id="modalTitle">Agregar</h3></div>
+        <button class="icon-btn" id="modalCloseBtn" type="button" aria-label="Cerrar">×</button>
+      </div>
+      <div id="modalBody" class="modal-body"></div>
+      <div class="modal-actions">
+        <button class="secondary-btn ghost" id="modalCancelBtn" type="button">Cancelar</button>
+        <button id="modalSubmit" class="primary-btn pressable" value="default">Guardar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <template id="fieldTemplate">
+    <label class="field"><span></span><input /></label>
+  </template>
+
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js" defer></script>
+  <script src="/app.js" defer></script>
+</body>
+</html>
